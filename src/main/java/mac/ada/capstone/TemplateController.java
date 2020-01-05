@@ -25,7 +25,7 @@ public class TemplateController {
 	public TemplateController() {
 		// Here we pass in our connection string to our mongo db cluster
 		final MongoClient mongoClient = MongoClients.create(
-				"mongodb+srv://duncadav:P33P00PFARTS@duncantestcluster-p4zx2.gcp.mongodb.net/test?retryWrites=true&w=majority");
+				"<connection_string>");
 		final MongoDatabase database = mongoClient.getDatabase("test");
 
 		this.templateCollection = database.getCollection("templateCollection");
