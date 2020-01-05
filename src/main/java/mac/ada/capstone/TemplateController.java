@@ -4,6 +4,9 @@ import org.bson.Document;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import com.mongodb.*;
 import com.mongodb.client.*;
 import com.mongodb.client.MongoClient;
@@ -25,7 +28,7 @@ public class TemplateController {
 	public TemplateController() {
 		// Here we pass in our connection string to our mongo db cluster
 		final MongoClient mongoClient = MongoClients.create(
-				"<connection_string>");
+				"ConnectionString");
 		final MongoDatabase database = mongoClient.getDatabase("test");
 
 		this.templateCollection = database.getCollection("templateCollection");
@@ -37,28 +40,30 @@ public class TemplateController {
 		StringBuilder builder = new StringBuilder();
 
 		// This method gets all entries from our "Template Collection"
-		final FindIterable<Document> myDoc = this.templateCollection.find();
+	
+		return StreamSupport.stream(this.templateCollection.find().spliterator(), false).map(Document::toJson).collect(Collectors.joining(", ", "[", "]"));
+		
+		// // Iterate over each entry retrieved, and add it to our return string
+		// myDoc.forEach((Block<Document>) t -> {
+		// 	builder.append("<div class=\"templateEntry\">");
+		// 	builder.append("</br><b>Template Name</b>  </br></br>");
+		// 	builder.append(t.getString("Name"));
+		// 	builder.append("</br> </br><b>Template</b> </br> </br>");
+		// 	builder.append(t.getString("Contents"));
+		// 	builder.append("</br> </br><b>Template Creator</b> </br> </br>");
+		// 	builder.append(t.getString("Creator"));
+		// 	builder.append("</div></br></br></br>");
+		// });
 
-		// Iterate over each entry retrieved, and add it to our return string
-		myDoc.forEach((Block<Document>) t -> {
-			builder.append("<div class=\"templateEntry\">");
-			builder.append("</br><b>Template Name</b>  </br></br>");
-			builder.append(t.getString("Name"));
-			builder.append("</br> </br><b>Template</b> </br> </br>");
-			builder.append(t.getString("Contents"));
-			builder.append("</br> </br><b>Template Creator</b> </br> </br>");
-			builder.append(t.getString("Creator"));
-			builder.append("</div></br></br></br>");
-		});
-
-		return builder.toString();
+		// return myDoc;
 	}
 
 	// Method for handling post calls to add templates to our mongo db
 	@PostMapping("/")
 	public ResponseEntity postController(@RequestBody TemplateRequest templateRequest) {
 
-		// Call the ToDocument() method on the template request object to turn it into a Document object
+		// Call the ToDocument() method on the template request object to turn it into a
+		// Document object
 		Document requestDoc = templateRequest.ToDocument();
 		if (requestDoc != null) {
 			// If the result is non-null, insert into collection
